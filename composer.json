@@ -1,5 +1,5 @@
 {
-    "name": "beautystack/php-value-object",
+    "name": "beautystack/value-object",
     "type": "library",
     "license": "MIT",
     "autoload": {
