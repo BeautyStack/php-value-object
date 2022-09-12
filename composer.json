@@ -1,0 +1,23 @@
+{
+    "name": "beautystack/php-value-object",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Beautystack\\Value\\Implementation\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ken Lalobo",
+            "email": "lalobo@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-intl": "*",
+        "beautystack/value-object-contracts": "^0.0.6",
+        "ramsey/uuid": "^4.4",
+        "moneyphp/money": "^4.0"
+    }
+}
