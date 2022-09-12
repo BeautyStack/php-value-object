@@ -99,7 +99,7 @@ class Money implements \Beautystack\Value\Contracts\Money\Money
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self::class) {
+        if (!$compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();

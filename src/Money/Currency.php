@@ -39,7 +39,7 @@ class Currency implements \Beautystack\Value\Contracts\Money\Currency
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self::class) {
+        if (!$compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();

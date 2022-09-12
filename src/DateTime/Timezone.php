@@ -30,7 +30,7 @@ class Timezone implements \Beautystack\Value\Contracts\DateTime\Timezone
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self::class) {
+        if (!$compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();

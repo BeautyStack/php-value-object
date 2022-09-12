@@ -51,7 +51,7 @@ class Id implements \Beautystack\Value\Contracts\Identity\Id
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self::class) {
+        if (!$compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();
