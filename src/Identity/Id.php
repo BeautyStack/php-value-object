@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beautystack\Value\Implementation\Identity;
 
+use Beautystack\Value\Contracts\Identity\IdInterface;
 use Beautystack\Value\Contracts\ValueObjectInterface;
 use Ramsey\Uuid\Uuid;
 
-class Id implements \Beautystack\Value\Contracts\Identity\Id
+class Id implements IdInterface
 {
     private string $value;
 
@@ -51,13 +54,13 @@ class Id implements \Beautystack\Value\Contracts\Identity\Id
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self) {
+        if (! $compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();
     }
 
-    public function jsonSerialize() : string
+    public function jsonSerialize(): string
     {
         return $this->getValue();
     }

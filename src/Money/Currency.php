@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beautystack\Value\Implementation\Money;
 
+use Beautystack\Value\Contracts\Money\CurrencyInterface;
 use Beautystack\Value\Contracts\Money\Exception\InvalidCurrencyException;
 use Beautystack\Value\Contracts\ValueObjectInterface;
 use Money\Currencies\ISOCurrencies;
 
-class Currency implements \Beautystack\Value\Contracts\Money\Currency
+class Currency implements CurrencyInterface
 {
     private string $value;
 
@@ -16,7 +19,7 @@ class Currency implements \Beautystack\Value\Contracts\Money\Currency
         $this->value = $value;
     }
 
-    public static function fromString(string $value) : self
+    public static function fromString(string $value): self
     {
         $value = strtoupper($value);
         if (empty($value)) {
@@ -39,13 +42,13 @@ class Currency implements \Beautystack\Value\Contracts\Money\Currency
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self) {
+        if (! $compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();
     }
 
-    public function getValue() : string
+    public function getValue(): string
     {
         return $this->value;
     }

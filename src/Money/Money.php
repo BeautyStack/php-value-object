@@ -1,39 +1,57 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beautystack\Value\Implementation\Money;
 
+use Beautystack\Value\Contracts\Money\CurrencyInterface;
+use Beautystack\Value\Contracts\Money\Exception\InvalidCurrencyException;
+use Beautystack\Value\Contracts\Money\MoneyInterface;
 use Beautystack\Value\Contracts\ValueObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Money\Exception\UnknownCurrencyException;
 
-class Money implements \Beautystack\Value\Contracts\Money\Money
+class Money implements MoneyInterface
 {
     private int $amount;
-    private \Beautystack\Value\Contracts\Money\Currency $currency;
 
-    private function __construct(int $amount, \Beautystack\Value\Contracts\Money\Currency $currency)
+    private CurrencyInterface $currency;
+
+    private function __construct(int $amount, CurrencyInterface $currency)
     {
         $this->amount = $amount;
         $this->currency = $currency;
     }
 
-    public static function fromInt(int $amount, \Beautystack\Value\Contracts\Money\Currency $currency): Money
+    public static function fromInt(int $amount, CurrencyInterface $currency): Money
     {
         return new Money($amount, $currency);
     }
 
+    /**
+     * @throws InvalidCurrencyException
+     */
     public static function fromStrings(string $amount, string $currency): Money
     {
+        if (empty($currency)) {
+            throw new \InvalidArgumentException('currency cannot be empty');
+        }
         $currencies = new \Money\Currencies\ISOCurrencies();
         $moneyParser = new \Money\Parser\DecimalMoneyParser($currencies);
-        $money = $moneyParser->parse($amount, new \Money\Currency($currency));
-
+        try {
+            $money = $moneyParser->parse($amount, new \Money\Currency($currency));
+        } catch (UnknownCurrencyException) {
+            throw new InvalidCurrencyException(sprintf('currency %s is not supported', $currency));
+        }
         return new self((int) $money->getAmount(), Currency::fromString($money->getCurrency()->getCode()));
     }
 
     public function format(): string
     {
-        $money = new \Money\Money($this->amount, new \Money\Currency($this->currency));
+        /** @var non-empty-string $currencyString */
+        $currencyString = $this->currency->getValue();
+        $money = new \Money\Money($this->amount, new \Money\Currency($currencyString));
         $currencies = new \Money\Currencies\ISOCurrencies();
         $numberFormatter = new \NumberFormatter('en', \NumberFormatter::CURRENCY);
         $moneyFormatter = new \Money\Formatter\IntlMoneyFormatter($numberFormatter, $currencies);
@@ -46,7 +64,7 @@ class Money implements \Beautystack\Value\Contracts\Money\Money
         return $this->amount;
     }
 
-    public function getCurrency(): \Beautystack\Value\Contracts\Money\Currency
+    public function getCurrency(): CurrencyInterface
     {
         return $this->currency;
     }
@@ -59,26 +77,42 @@ class Money implements \Beautystack\Value\Contracts\Money\Money
         ];
     }
 
-
-    public function subtract(\Beautystack\Value\Contracts\Money\Money $money): Money
+    public function subtract(MoneyInterface $money): Money
     {
-        $moneyPhp = new \Money\Money($this->getAmount(), new \Money\Currency($this->getCurrency()));
-        $result = $moneyPhp->subtract(new \Money\Money($money->getAmount(), new \Money\Currency($money->getCurrency())));
+        /** @var non-empty-string $currencyString */
+        $currencyString = $this->getCurrency()->getValue();
+        $moneyPhp = new \Money\Money($this->getAmount(), new \Money\Currency($currencyString));
+
+        /** @var non-empty-string $currencyStringNew */
+        $currencyStringNew = $money->getCurrency()->getValue();
+        $result = $moneyPhp->subtract(new \Money\Money($money->getAmount(), new \Money\Currency($currencyStringNew)));
 
         return Money::fromInt((int) $result->getAmount(), Currency::fromString($result->getCurrency()->getCode()));
     }
 
-    public function add(\Beautystack\Value\Contracts\Money\Money $money): Money
+    public function add(MoneyInterface $money): Money
     {
-        $moneyPhp = new \Money\Money($this->getAmount(), new \Money\Currency($this->getCurrency()));
-        $result = $moneyPhp->add(new \Money\Money($money->getAmount(), new \Money\Currency($money->getCurrency())));
+        /** @var non-empty-string $currencyString */
+        $currencyString = $this->getCurrency()->getValue();
+        $moneyPhp = new \Money\Money($this->getAmount(), new \Money\Currency($currencyString));
+
+        /** @var non-empty-string $currencyStringNew */
+        $currencyStringNew = $money->getCurrency()->getValue();
+        $result = $moneyPhp->add(new \Money\Money($money->getAmount(), new \Money\Currency($currencyStringNew)));
 
         return Money::fromInt((int) $result->getAmount(), Currency::fromString($result->getCurrency()->getCode()));
     }
 
+    /**
+     * @return Collection<MoneyInterface>
+     */
     public function percent(int ...$percentages): Collection
     {
-        $moneyPhp = new \Money\Money($this->getAmount(), new \Money\Currency($this->getCurrency()));
+        /** @var non-empty-string $currencyString */
+        $currencyString = $this->getCurrency()->getValue();
+        $moneyPhp = new \Money\Money($this->getAmount(), new \Money\Currency($currencyString));
+
+        /** @var non-empty-array<int> $percentages */
         $newMoneyPhpArray = $moneyPhp->allocate($percentages);
 
         return new ArrayCollection(array_map(
@@ -93,13 +127,13 @@ class Money implements \Beautystack\Value\Contracts\Money\Money
     {
         return [
             'amount' => $this->amount,
-            'currency' => $this->currency
+            'currency' => $this->currency,
         ];
     }
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self) {
+        if (! $compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();
