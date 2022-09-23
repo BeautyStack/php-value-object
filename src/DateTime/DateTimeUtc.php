@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
 namespace Beautystack\Value\Implementation\DateTime;
 
-use Beautystack\Value\Contracts\DateTime\DateTime;
-use Beautystack\Value\Contracts\DateTime\Timezone;
+use Beautystack\Value\Contracts\DateTime\DateTimeInterface;
+use Beautystack\Value\Contracts\DateTime\TimezoneInterface;
 use Beautystack\Value\Contracts\ValueObjectInterface;
 use DateTimeImmutable;
 
-class DateTimeUtc implements DateTime
+class DateTimeUtc implements DateTimeInterface
 {
     public const TIME_ZONE_UTC = 'UTC';
 
@@ -32,71 +33,68 @@ class DateTimeUtc implements DateTime
         $this->dateTimeImmutable = $dateTimeImmutable;
     }
 
-    public static function fromString(string $time, ?Timezone $timezone = null): DateTime
+    public static function fromString(string $time, null|TimezoneInterface|string $timezone = null): self
     {
-        $timezone = isset($timezone) ? new \DateTimeZone($timezone->getValue()) : null;
+        $timezone = isset($timezone) ? new \DateTimeZone($timezone instanceof TimezoneInterface ? $timezone->getValue() : $timezone) : null;
         $dateTimeImmutable = (new DateTimeImmutable($time, $timezone))
             ->setTimezone(new \DateTimeZone(static::TIME_ZONE_UTC));
 
         return new DateTimeUtc($dateTimeImmutable);
     }
 
-    public static function fromInterval(int $seconds, DateTimeUtc $dateTimeFrom = null): DateTime
+    public static function fromInterval(int $seconds, DateTimeUtc $dateTimeFrom = null): self
     {
         if (empty($dateTimeFrom)) {
             $dateTimeFrom = DateTimeUtc::fromNow();
         }
-        return new self(
-            $dateTimeFrom->dateTimeImmutable->add(
-                new \DateInterval(sprintf('PT%dS', $seconds))
-            )
-        );
+        return $dateTimeFrom->addInterval($seconds);
     }
 
-    public static function fromPhpDateTime(\DateTime $date): DateTime
+    public static function fromPhpDateTime(\DateTime $date): self
     {
         return DateTimeUtc::fromString($date->format('c'));
     }
 
-    public static function fromNow(): DateTime
+    public static function fromNow(): self
     {
         return DateTimeUtc::fromString('now');
     }
 
-    public static function fromUnixEpoch(): DateTime
+    public static function fromUnixEpoch(): self
     {
         return static::fromTimestamp(0);
     }
 
-    public static function fromTimestamp(int $timestamp): DateTime
+    public static function fromTimestamp(int $timestamp): self
     {
         return DateTimeUtc::fromString((new \DateTime(sprintf('@%d', $timestamp)))->format('c'));
     }
 
-    public static function fromTimestampMs(int $milliseconds): DateTime
+    public static function fromTimestampMs(int $milliseconds): self
     {
         $timestamp = $milliseconds > 0 ? intval($milliseconds / 1000) : 0;
         return self::fromTimestamp($timestamp);
     }
 
-    public function addInterval(int $seconds): DateTimeUtc
+    public function addInterval(int $seconds): self
     {
-        return DateTimeUtc::fromInterval($seconds, $this);
-    }
-
-    public function removeInterval(int $seconds): DateTime
-    {
-        if (empty($dateTimeFrom)) {
-            $dateTimeFrom = DateTimeUtc::fromNow();
-        }
         return new self(
-            $dateTimeFrom->dateTimeImmutable->sub(
+            $this->dateTimeImmutable->add(
                 new \DateInterval(sprintf('PT%dS', $seconds))
             )
         );
     }
 
-    public function firstDayOfLastMonth(Timezone $timezone, string $time = '00:00:00'): DateTime
+    public function removeInterval(int $seconds): self
+    {
+        return new self(
+            $this->dateTimeImmutable->sub(
+                new \DateInterval(sprintf('PT%dS', $seconds))
+            )
+        );
+    }
+
+    public function firstDayOfLastMonth(TimezoneInterface $timezone, string $time = '00:00:00'): self
     {
         return DateTimeUtc::fromString(
             $this->toPhpDateTime()
@@ -107,7 +105,7 @@ class DateTimeUtc implements DateTime
         );
     }
 
-    public function firstDayOfNextMonth(Timezone $timezone, string $time = '00:00:00'): DateTime
+    public function firstDayOfNextMonth(TimezoneInterface $timezone, string $time = '00:00:00'): self
     {
         return DateTimeUtc::fromString(
             $this->toPhpDateTime()
@@ -118,7 +116,7 @@ class DateTimeUtc implements DateTime
         );
     }
 
-    public function lastDayOfThisMonth(Timezone $timezone, string $time = '00:00:00'): DateTime
+    public function lastDayOfThisMonth(TimezoneInterface $timezone, string $time = '00:00:00'): self
     {
         return DateTimeUtc::fromString(
             $this->toPhpDateTime()
@@ -129,7 +127,7 @@ class DateTimeUtc implements DateTime
         );
     }
 
-    public function firstDayOfThisMonth(Timezone $timezone, string $time = '00:00:00'): DateTime
+    public function firstDayOfThisMonth(TimezoneInterface $timezone, string $time = '00:00:00'): self
     {
         return DateTimeUtc::fromString(
             $this->toPhpDateTime()
@@ -140,9 +138,9 @@ class DateTimeUtc implements DateTime
         );
     }
 
-    public function format(string $format, Timezone $timezone): string
+    public function format(string $format, TimezoneInterface $timezone): string
     {
-        return $this->dateTimeImmutable->setTimezone(new \DateTimeZone($timezone))->format($format);
+        return $this->dateTimeImmutable->setTimezone(new \DateTimeZone($timezone->getValue()))->format($format);
     }
 
     public function toPhpDateTime(): \DateTime
@@ -155,12 +153,12 @@ class DateTimeUtc implements DateTime
         return $this->dateTimeImmutable->format('c');
     }
 
-    public function getTimestamp() : int
+    public function getTimestamp(): int
     {
         return $this->dateTimeImmutable->getTimestamp();
     }
 
-    public function isBefore(DateTime $compareDate, bool $inclusive = false): bool
+    public function isBefore(DateTimeInterface $compareDate, bool $inclusive = false): bool
     {
         if ($inclusive) {
             return $this->getTimestamp() <= $compareDate->getTimestamp();
@@ -169,7 +167,7 @@ class DateTimeUtc implements DateTime
         return $this->getTimestamp() < $compareDate->getTimestamp();
     }
 
-    public function isAfter(DateTime $compareDate, bool $inclusive = false): bool
+    public function isAfter(DateTimeInterface $compareDate, bool $inclusive = false): bool
     {
         if ($inclusive) {
             return $this->getTimestamp() >= $compareDate->getTimestamp();
@@ -190,7 +188,7 @@ class DateTimeUtc implements DateTime
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self) {
+        if (! $compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();

@@ -7,6 +7,11 @@
             "Beautystack\\Value\\Implementation\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Ken Lalobo",
@@ -14,10 +19,16 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.0",
         "ext-intl": "*",
-        "beautystack/value-object-contracts": "^0.0.6",
+        "beautystack/value-object-contracts": "^0.0.7",
         "ramsey/uuid": "^4.4",
         "moneyphp/money": "^4.0"
+    },
+    "require-dev": {
+        "symplify/easy-coding-standard": "^11.1",
+        "phpstan/phpstan": "^1.8",
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan-phpunit": "^1.1"
     }
 }

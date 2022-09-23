@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beautystack\Value\Implementation\DateTime;
 
+use Beautystack\Value\Contracts\DateTime\TimezoneInterface;
 use Beautystack\Value\Contracts\ValueObjectInterface;
 
-class Timezone implements \Beautystack\Value\Contracts\DateTime\Timezone
+class Timezone implements TimezoneInterface
 {
     private string $value;
 
@@ -13,7 +16,7 @@ class Timezone implements \Beautystack\Value\Contracts\DateTime\Timezone
         $this->value = $value;
     }
 
-    public static function fromString(string $value) : self
+    public static function fromString(string $value): self
     {
         return new self($value);
     }
@@ -30,7 +33,7 @@ class Timezone implements \Beautystack\Value\Contracts\DateTime\Timezone
 
     public function isEqual(ValueObjectInterface $compareValueObject): bool
     {
-        if (!$compareValueObject instanceof self) {
+        if (! $compareValueObject instanceof self) {
             return false;
         }
         return $this->jsonSerialize() === $compareValueObject->jsonSerialize();
