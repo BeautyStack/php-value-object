@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17725bfb0c83129f12c4a506ec48c94c",
+    "content-hash": "fd37065b2cfe29b6347d534cfe170fea",
     "packages": [
         {
             "name": "beautystack/value-object-contracts",
-            "version": "0.0.7",
+            "version": "0.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BeautyStack/php-value-object-contracts.git",
-                "reference": "0e34b4860e09868268305c644f87ced857d634d6"
+                "reference": "65e811a58a10a26d492f6413241b31e75d03a692"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BeautyStack/php-value-object-contracts/zipball/0e34b4860e09868268305c644f87ced857d634d6",
-                "reference": "0e34b4860e09868268305c644f87ced857d634d6",
+                "url": "https://api.github.com/repos/BeautyStack/php-value-object-contracts/zipball/65e811a58a10a26d492f6413241b31e75d03a692",
+                "reference": "65e811a58a10a26d492f6413241b31e75d03a692",
                 "shasum": ""
             },
             "require": {
@@ -47,9 +47,9 @@
             "description": "Generic abstractions related to value objects",
             "support": {
                 "issues": "https://github.com/BeautyStack/php-value-object-contracts/issues",
-                "source": "https://github.com/BeautyStack/php-value-object-contracts/tree/0.0.7"
+                "source": "https://github.com/BeautyStack/php-value-object-contracts/tree/0.0.10"
             },
-            "time": "2022-09-23T10:40:26+00:00"
+            "time": "2022-10-03T13:05:32+00:00"
         },
         {
             "name": "brick/math",
