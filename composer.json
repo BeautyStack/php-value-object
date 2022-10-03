@@ -21,7 +21,7 @@
     "require": {
         "php": ">=8.0",
         "ext-intl": "*",
-        "beautystack/value-object-contracts": "^0.0.7",
+        "beautystack/value-object-contracts": "^0.0.10",
         "ramsey/uuid": "^4.4",
         "moneyphp/money": "^4.0"
     },
